@@ -1,0 +1,88 @@
+import requests
+import json
+from datetime import datetime, timedelta
+
+# Jira 설정
+jira_url = "https://midasitweb-jira.atlassian.net/rest/api/3/issue"  # Jira REST API URL
+email = "kjm0108@midasin.com"  # Jira 계정 이메일
+worklog_url = "https://midasitweb-jira.atlassian.net/rest/api/3/issue/{issue_id}/worklog"  # Worklog API URL
+api_token = "ATATT3xFfGF0AN601lg9C5rw0yGsDWWaut90Yp0KpW5HvNWPf6aBi4v4kU3rLEPTMOqF8P73LhUg3DexRqI4hSpIoa8dlampB042SF7QU1pfVC_5PepPP5my9KOkQvs0-jwYNMhmvk1t_KidfnplwQPq8Nj59LAmB5pcP5VfU5i3HkH84URF57U=66D8B785"  # Atlassian에서 생성한 API 토큰
+
+# 이슈 데이터
+issue_data = {
+    "fields": {
+        "project": {"key": "ISMS"},  # 실제 프로젝트 키로 변경
+        "summary": "테스트 이슈 등록",  # 이슈 제목
+        "description": {
+            "type": "doc",
+            "version": 1,
+            "content": [
+                {
+                    "type": "paragraph",
+                    "content": [
+                        {"type": "text", "text": "Creating an issue using Jira REST API"}
+                    ]
+                }
+            ]
+        },
+        "issuetype": {"name": "Task"},  # 이슈 유형
+        "priority": {"id": "1"},  # 우선순위 (1: High)
+        "fixVersions": [
+            {"id": "13709"}  # 수정 버전 이름: ['24년 하반기] 07. 메인 과제
+        ],
+        "assignee": {"id": "6278c7a123d61e006fc3ab26"}  # 담당자 계정 ID
+    }
+}
+
+# API 호출
+response = requests.post(
+    jira_url,
+    auth=(email, api_token),  # Basic Auth
+    headers={"Content-Type": "application/json"},
+    data=json.dumps(issue_data)
+)
+
+# 응답 출력 및 Worklog 추가
+if response.status_code == 201:
+    print("이슈가 성공적으로 생성되었습니다.")
+    issue_id = response.json().get("key")  # 생성된 이슈 키
+    print("생성된 이슈 키:", issue_id)
+
+    # 현재 시간을 ISO 8601 형식으로 생성
+    current_time = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "+0900"  # KST 기준
+
+    # Worklog 데이터
+    worklog_data = {
+        "comment": {
+            "type": "doc",
+            "version": 1,
+            "content": [
+                {
+                    "type": "paragraph",
+                    "content": [
+                        {"type": "text", "text": "Added worklog via API"}
+                    ]
+                }
+            ]
+        },
+        "timeSpent": "1h",  # 소요 시간
+        "started": current_time  # 작업 시작 시간
+    }
+
+    # Worklog 추가 API 호출
+    response_worklog = requests.post(
+        worklog_url.format(issue_id=issue_id),
+        auth=(email, api_token),  # Basic Auth
+        headers={"Content-Type": "application/json"},
+        data=json.dumps(worklog_data)
+    )
+
+    if response_worklog.status_code == 201:
+        print("Worklog가 성공적으로 추가되었습니다.")
+        print("응답 데이터:", response_worklog.json())
+    else:
+        print(f"Worklog 추가 실패: {response_worklog.status_code}")
+        print(response_worklog.json())
+else:
+    print(f"이슈 생성 실패: {response.status_code}")
+    print(response.json())
