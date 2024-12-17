@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 jira_url = "https://midasitweb-jira.atlassian.net/rest/api/3/issue"  # Jira REST API URL
 email = "kjm0108@midasin.com"  # Jira 계정 이메일
 worklog_url = "https://midasitweb-jira.atlassian.net/rest/api/3/issue/{issue_id}/worklog"  # Worklog API URL
-api_token = "ATATT3xFfGF0AN601lg9C5rw0yGsDWWaut90Yp0KpW5HvNWPf6aBi4v4kU3rLEPTMOqF8P73LhUg3DexRqI4hSpIoa8dlampB042SF7QU1pfVC_5PepPP5my9KOkQvs0-jwYNMhmvk1t_KidfnplwQPq8Nj59LAmB5pcP5VfU5i3HkH84URF57U=66D8B785"  # Atlassian에서 생성한 API 토큰
+api_token = ""  # Atlassian에서 생성한 API 토큰
 
 # 이슈 데이터
 issue_data = {
